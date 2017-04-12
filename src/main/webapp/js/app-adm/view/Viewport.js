@@ -4,13 +4,13 @@ Ext.define('AppAdm.view.Viewport', {
     itemId: 'viewport',
     layout: 'border',
     items: [
-        {
-            xtype: 'box',
-            region: 'north',
-            margin: '10 00 15 10',
-            html: '<img src="resources/imagens/logo2.png" width="100" height="40"'
-
-        },
+        //{
+        //    xtype: 'box',
+        //    region: 'north',
+        //    margin: '10 00 15 10',
+        //    html: '<img src="resources/imagens/logo2.png" width="100" height="40"'
+        //
+        //},
         {
             xtype: 'toolbar',
             itemId: 'menu_principal',
@@ -19,7 +19,7 @@ Ext.define('AppAdm.view.Viewport', {
             },
             baseCls: 'x-plain',
             region: 'north',
-            margin: '00 10 00 10',
+            margin: '30 10 00 10',
             items: [
                 {
                     text: 'Cadastros',
