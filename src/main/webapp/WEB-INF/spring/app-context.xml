@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:sec="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <!-- Annotations -->
+    <context:annotation-config />
+
+    <!-- AOP -->
+    <aop:aspectj-autoproxy />
+    <aop:config proxy-target-class="true" />
+
+    <!-- Pacotes -->
+    <context:component-scan base-package="br.com.admin" />
+
+    <!-- ARQUIVOS DE CONFIG -->
+    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>/WEB-INF/db.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Mensagens -->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>myprops</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+        <property name="driverClass" value="${db.driver}" />
+        <property name="jdbcUrl" value="${db.url}" />
+        <property name="username" value="${db.user}" />
+        <property name="password" value="${db.password}" />
+        <property name="idleConnectionTestPeriodInMinutes" value="${db.idleConnectionTestPeriodInMinutes}" />
+        <property name="idleMaxAgeInMinutes" value="${db.idleMaxAgeInMinutes}" />
+        <property name="maxConnectionsPerPartition" value="${db.maxConnectionsPerPartition}" />
+        <property name="minConnectionsPerPartition" value="${db.minConnectionsPerPartition}" />
+        <property name="partitionCount" value="${db.partitionCount}" />
+        <property name="acquireIncrement" value="${db.acquireIncrement}" />
+        <property name="statementsCacheSize" value="${db.statementsCacheSize}" />
+        <property name="releaseHelperThreads" value="${db.releaseHelperThreads}" />
+    </bean>
+
+    <!-- Transaction -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+    <!-- Jdbc -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <bean id="namedParamJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+        <constructor-arg name="classicJdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
+
+    <!-- Spring Security -->
+    <sec:global-method-security
+            secured-annotations="enabled"
+            jsr250-annotations="disabled"
+            proxy-target-class="true"
+            pre-post-annotations="enabled"
+            />
+    <sec:http pattern="/js/**" security="none"/>
+    <sec:http pattern="/login**" security="none"/>
+    <sec:http pattern="/resources/**" security="none"/>
+    <sec:http auto-config="true" use-expressions="true">
+
+        <!-- Login -->
+        <sec:form-login login-page="/login"
+                        login-processing-url="/j_spring_security_check"
+                        default-target-url="/"
+                        username-parameter="j_username"
+                        password-parameter="j_password"
+                        always-use-default-target="true"
+                        authentication-failure-handler-ref="customAuthenticationFailureHandler"
+                        authentication-success-handler-ref="customLoginSuccessHandler"/>
+
+        <!-- Logout -->
+        <sec:logout logout-url="/logout"
+                    invalidate-session="true"
+                    delete-cookies="true"
+                    success-handler-ref="customLogoutSuccessHandler" />
+
+        <!-- Permissões: As mais restritas primeiro e as mais generalistas no final -->
+        <sec:intercept-url pattern="/produ/api/getDistinctProducts" access="hasRole('ROLE_API')"/>
+        <sec:intercept-url pattern="/pedid/api/carrinho" access="hasRole('ROLE_API')"/>
+        <sec:intercept-url pattern="/usuar/api/insert" access="hasRole('ROLE_ADM') or hasRole('ROLE_EMP') or hasRole('ROLE_API')"/>
+        <sec:intercept-url pattern="/usuar/api/login_mobile" access="hasRole('ROLE_API')"/>
+        <sec:intercept-url pattern="/usuar/api/termo_uso" access="hasRole('ROLE_API')"/>
+        <!-- Demais regras de interceptação -->
+        <sec:intercept-url pattern="/**" access="hasRole('ROLE_ADM') or hasRole('ROLE_EMP')"/>
+
+    </sec:http>
+
+    <sec:authentication-manager>
+        <!-- App -->
+        <sec:authentication-provider>
+            <sec:user-service>
+                <sec:user name="app_api" password="123856b54f3c0e782b4ee6147b6e8bdf" authorities="ROLE_API" />
+            </sec:user-service>
+        </sec:authentication-provider>
+        <!-- Demais usuários -->
+        <sec:authentication-provider>
+            <sec:password-encoder hash="md5" />
+            <sec:jdbc-user-service data-source-ref="dataSource"
+                                   users-by-username-query="SELECT des_user, des_senha, flg_ativo FROM usuar WHERE des_user=?"
+                                   authorities-by-username-query="SELECT des_user, des_acesso, des_user FROM usuar WHERE des_user=?" />
+        </sec:authentication-provider>
+    </sec:authentication-manager>
+
+</beans>

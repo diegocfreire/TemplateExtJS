@@ -1,0 +1,12 @@
+.tabbar-body{
+    border-style: ridge;
+}
+.app-header {
+    border-style: inset;
+}
+.red-label label {
+    color: #f00;
+}
+.blue-label label {
+    color: #00f;
+}
