@@ -4,13 +4,6 @@ Ext.define('AppAdm.view.Viewport', {
     itemId: 'viewport',
     layout: 'border',
     items: [
-        //{
-        //    xtype: 'box',
-        //    region: 'north',
-        //    margin: '10 00 15 10',
-        //    html: '<img src="resources/imagens/logo2.png" width="100" height="40"'
-        //
-        //},
         {
             xtype: 'toolbar',
             itemId: 'menu_principal',
@@ -31,6 +24,11 @@ Ext.define('AppAdm.view.Viewport', {
                                 text: 'Usuários',
                                 itemId: 'mmnUsuarios',
                                 icon: 'resources/icons/users.png'
+                            },
+                            {
+                                text: 'Estados',
+                                itemId: 'mmnEstados',
+                                icon: 'resources/icons/business-contact.png'
                             }
                         ]
                     })

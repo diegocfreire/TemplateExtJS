@@ -17,5 +17,8 @@
 <sec:authorize access="hasRole('ROLE_ADM') or hasRole('ROLE_EMP')" >
     <script type="text/javascript" src="js/app-adm/app-adm.js"></script>
 </sec:authorize>
+<sec:authorize access="hasRole('ROLE_FLOG')" >
+    <h1>sai miseria</h1>
+</sec:authorize>
 </body>
 </html>

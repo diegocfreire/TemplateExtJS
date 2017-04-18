@@ -16,6 +16,9 @@ Ext.define('AppAdm.controller.Viewport', {
             },
             'viewport #mmnAltSenha': {
                 click: this.onAltSenha
+            },
+            'viewport #mmnEstados': {
+                click: this.onEstadosClick
             }
         });
     },
@@ -37,5 +40,8 @@ Ext.define('AppAdm.controller.Viewport', {
         var edNome = Ext.ComponentQuery.query('UsuAltSenha #formUsuAltSenha #edAltSenhaNome')[0];
         edLogin.setValue(lg);
         edNome.setValue(nm);
+    },
+    onEstadosClick: function() {
+
     }
 });
